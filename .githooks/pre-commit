@@ -1,0 +1,8 @@
+#!/bin/sh
+# Blocks committing real .env files; .env.example is allowed. See AGENTS.md.
+bad=$(git diff --cached --name-only --diff-filter=ACR | grep -E '(^|/)\.env(\..+)?$' | grep -v '\.example$')
+if [ -n "$bad" ]; then
+  echo "Commit blocked: these files hold secrets and must not be committed:" >&2
+  echo "$bad" >&2
+  exit 1
+fi

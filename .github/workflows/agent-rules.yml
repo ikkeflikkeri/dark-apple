@@ -1,0 +1,19 @@
+name: agent-rules
+on: pull_request
+jobs:
+  agent-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: No AI attribution in commit messages
+        run: |
+          for c in $(git rev-list "origin/${{ github.base_ref }}..${{ github.event.pull_request.head.sha }}"); do
+            git log -1 --format=%B "$c" > "$RUNNER_TEMP/msg"
+            sh .githooks/commit-msg "$RUNNER_TEMP/msg"
+          done
+      - name: No .env files
+        run: |
+          bad=$(git diff --name-only --diff-filter=ACR "origin/${{ github.base_ref }}...${{ github.event.pull_request.head.sha }}" | grep -E '(^|/)\.env(\..+)?$' | grep -v '\.example$' || true)
+          if [ -n "$bad" ]; then echo "These files must not be committed: $bad"; exit 1; fi
