@@ -1,0 +1,6 @@
+#!/bin/sh
+# Blocks AI attribution in commit messages. See AGENTS.md.
+if grep -Eiq '^co-authored-by:.*(claude|anthropic|openai|chatgpt|copilot|gemini|cursor|codex)|generated (with|by) .*(claude|chatgpt|copilot|gemini|cursor|codex)' "$1"; then
+  echo "Commit blocked: remove the AI attribution line. See AGENTS.md." >&2
+  exit 1
+fi
